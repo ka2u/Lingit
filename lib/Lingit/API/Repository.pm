@@ -16,6 +16,7 @@ has repos => (
 has worktree => (
     is => 'rw',
     isa => 'Git::Class::Worktree',
+    predicate => 'has_worktree',
 );
 
 has db => (
@@ -65,16 +66,16 @@ sub get_manage_repos {
 sub get_status {
     my ($self, $path) = @_;
 
-    $self->worktree(Git::Class::Worktree->new(path => $path));
+    my $worktree = $self->worktree(Git::Class::Worktree->new(path => $path));
     my $status = $self->worktree->status;
     return $status;
 }
 
 sub add {
-    my $self = shift;
+    my ($self, $path) = @_;
 
-    $self->worktree->add('.');
-    $self->worktree->commit;
+    $self->worktree->add($path);
+    $self->worktree->commit({message => "auto commit"});
 }
 
 __PACKAGE__->meta->make_immutable();

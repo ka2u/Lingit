@@ -22,12 +22,11 @@ Catalyst Controller.
 
 =cut
 
-sub index :LocalRegex('\d+') {
+sub index :Regex('^management/(\d+)') {
     my ( $self, $c ) = @_;
 
     my $id = $c->req->captures->[0];
     my $row = $c->model('Git')->get_manage_repos($id);
-    $c->log->debug($row->first->get_column('path'));
     my $status = $c->model('Git')->get_status($row->first->get_column('path'));
     $c->stash->{status} = $status;
     $c->stash->{id} = $id;
@@ -37,13 +36,13 @@ sub index :LocalRegex('\d+') {
 
 =cut
 
-sub add :LocalRegex('\d+') {
+sub add :Regex('^management/add/(\d+)') {
     my ( $self, $c ) = @_;
 
     my $id = $c->req->captures->[0];
     my $row = $c->model('Git')->get_manage_repos($id);
     $c->model('Git')->add($row->first->get_column('path'));
-    $c->res->redirect('/management/$id');
+    $c->res->redirect("/management/$id");
 }
 
 

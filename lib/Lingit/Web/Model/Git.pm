@@ -45,6 +45,12 @@ sub get_status {
     return $status;
 }
 
+sub add {
+    my ($self, $path) = @_;
+
+    $self->repos->add($path);
+}
+
 =head1 NAME
 
 Lingit::Web::Model::Git - Catalyst Model
