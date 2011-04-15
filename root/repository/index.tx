@@ -1,0 +1,15 @@
+[% WRAPPER "site/wrapper.tx" %]
+
+<form action="repository/create">
+  <label>Repository Path: <input type="text" name="path" /></label>
+  <input type="submit" value="create" />
+</form>
+
+<div id="reposes">
+<h2>Repositories</h2>
+[% FOREACH repos IN reposes %]
+  * <a href="management/[% repos.rowid %]">[% repos.path %]</a>
+[% END %]
+</div>
+
+[% END %]
