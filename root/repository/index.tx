@@ -7,9 +7,11 @@
 
 <div id="reposes">
 <h2>Repositories</h2>
+  <ul>
 [% FOREACH repos IN reposes %]
-  * <a href="management/[% repos.rowid %]">[% repos.path %]</a>
+    <li>* <a href="management/[% repos.rowid %]">[% repos.path %]</a></li>
 [% END %]
+  </ul>
 </div>
 
 [% END %]
