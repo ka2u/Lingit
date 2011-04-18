@@ -17,6 +17,7 @@ has worktree => (
     is => 'rw',
     isa => 'Git::Class::Worktree',
     predicate => 'has_worktree',
+    clearer => 'clear_worktree',
 );
 
 has db => (
@@ -66,6 +67,7 @@ sub get_manage_repos {
 sub get_status {
     my ($self, $path) = @_;
 
+    $self->clear_worktree;
     my $worktree = $self->worktree(Git::Class::Worktree->new(path => $path));
     my $status = $self->worktree->status;
     return $status;
