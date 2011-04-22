@@ -1,7 +1,7 @@
 [% WRAPPER "site/wrapper.tx" %]
 
 <script id="repos" type="text/html">
-  <li><a href="/management/{{ id }}">{{ path }}</li>
+  <li><a href="/repository#status/{{ id }}">{{ path }}</li>
 </script>
 
 <div id="reposapp">
@@ -10,7 +10,7 @@
     <input type="button" id="createbtn" value="create" />
   </div>
   
-  <div id="reposes">
+  <div id="reposies">
   <h2>Repositories</h2>
     <ul id="reposlist">
     </ul>

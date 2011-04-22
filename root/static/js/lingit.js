@@ -1,10 +1,12 @@
 
 $(function() {
+    Backbone.emulateHTTP = true;
+    Backbone.emulateJSON = true;
+
     var Repository = Backbone.Model.extend({});
     var RepositoryList = Backbone.Collection.extend({
         model: Repository
     });
-    var reposies = new RepositoryList;
 
     var ReposView = Backbone.View.extend({
         initialize: function() {
@@ -18,21 +20,17 @@ $(function() {
         }
     });
 
-    Backbone.emulateHTTP = true;
-    Backbone.emulateJSON = true;
-    var AppView = Backbone.View.extend({
+    var LingitView = Backbone.View.extend({
         el: $("#reposapp"),
         events: {
             "click #createbtn": "addRepository"
         },
-        initialize: function() {
+        initialize: function(reposies) {
             _.bindAll(this, 'addOne', 'addAll');
             this.input = this.$("#path");
-            reposies.bind("add", this.addOne);
-            reposies.bind("refresh", this.addAll);
-
-            reposies.url = "/repository/list";
-            reposies.fetch();
+            this.reposies = reposies;
+            this.reposies.bind("add", this.addOne);
+            this.reposies.bind("refresh", this.addAll);
         },
         addRepository: function() {
             reposies.url = "/repository/create";
@@ -48,5 +46,28 @@ $(function() {
         },
     });
 
-    var app = new AppView;
+    var LingitController = Backbone.Controller.extend({
+        routes: {
+            ""               : "list",
+            "list"           : "list",
+            "status/:id"     : "status",
+            "diff/:id/:file" : "diff"
+        },
+        list: function() {
+            $.getJSON("/repository/list", function(data) {
+                if (data) {
+                    $("#reposlist").empty();
+                    var reposies = new RepositoryList;
+                    var lingitview = new LingitView(reposies);
+                    lingitview.reposies.add(_(data).map(function(i) { return new Repository(i); }));
+                } else {
+                    //Error
+                }
+            });
+        },
+        status: function() {
+        }
+    });
+    new LingitController;
+    Backbone.history.start();
 });

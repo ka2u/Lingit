@@ -26,6 +26,7 @@
     </div>
 
     <div id="content">
+      <a href="/repository">repositories</a>
       [% content %]
     </div>
 
