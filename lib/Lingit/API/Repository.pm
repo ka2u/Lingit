@@ -46,8 +46,9 @@ sub init {
     #TODO more restrict?
     return if -e $path . "/.git";
     my $t = localtime;
-    $self->db->insert('repository', {path => $path, create_date => $t->cdate});
+    my $row = $self->db->insert('repository', {path => $path, create_date => $t->cdate});
     $self->repos->init($path);
+    return $row;
 }
 
 sub get_reposes {

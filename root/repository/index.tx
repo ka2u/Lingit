@@ -1,17 +1,20 @@
 [% WRAPPER "site/wrapper.tx" %]
 
-<form action="repository/create">
-  <label>Repository Path: <input type="text" name="path" /></label>
-  <input type="submit" value="create" />
-</form>
+<script id="repos" type="text/html">
+  <li><a href="/management/{{ id }}">{{ path }}</li>
+</script>
 
-<div id="reposes">
-<h2>Repositories</h2>
-  <ul>
-[% FOREACH repos IN reposes %]
-    <li>* <a href="management/[% repos.rowid %]">[% repos.path %]</a></li>
-[% END %]
-  </ul>
+<div id="reposapp">
+  <div id="create">
+    <label>Repository Path: <input type="text" id="path" name="path" /></label>
+    <input type="button" id="createbtn" value="create" />
+  </div>
+  
+  <div id="reposes">
+  <h2>Repositories</h2>
+    <ul id="reposlist">
+    </ul>
+  </div>
 </div>
 
 [% END %]

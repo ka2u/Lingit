@@ -8,11 +8,13 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
   <script type="text/javascript" src="/static/js/jquery-1.5.2.js" charset="UTF-8"></script>
-  <script type="text/javascript" src="/static/js/backbone.js" charset="UTF-8"></script>
   <script type="text/javascript" src="/static/js/underscore.js" charset="UTF-8"></script>
+  <script type="text/javascript" src="/static/js/backbone.js" charset="UTF-8"></script>
 
   <script type="text/javascript" src="/static/js/ICanHaz.js" charset="UTF-8"></script>
   <script type="text/javascript" src="/static/js/mustache.js" charset="UTF-8"></script>
+
+  <script type="text/javascript" src="/static/js/lingit.js" charset="UTF-8"></script>
 
 </head>
 

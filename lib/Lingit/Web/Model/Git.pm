@@ -21,7 +21,7 @@ sub build_repos_api {
 sub init {
     my ($self, $path) = @_;
 
-    $self->repos->init($path);
+    return $self->repos->init($path);
 }
 
 sub get_reposes {
