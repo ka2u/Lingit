@@ -4,6 +4,11 @@
   <li><a href="/repository#status/{{ id }}">{{ path }}</li>
 </script>
 
+<script id="status" type="text/html">
+  Status
+  <pre id="status">{{ status }}</pre>
+</script>
+
 <div id="reposapp">
   <div id="create">
     <label>Repository Path: <input type="text" id="path" name="path" /></label>

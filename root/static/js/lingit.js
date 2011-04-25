@@ -10,12 +10,24 @@ $(function() {
 
     var ReposView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render');
-            this.model.bind('change', this.render);
+            _.bindAll(this, "render");
+            this.model.bind("change", this.render);
             this.model.view = this;
         },
         render: function() {
             this.el = ich.repos(this.model.toJSON());
+            return this;
+        }
+    });
+
+    var StatusView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, "render");
+            this.model.bind("change",  this.render);
+            this.model.view = this;
+        },
+        render: function() {
+            this.el = ich.status(this.model.toJSON());
             return this;
         }
     });
@@ -26,11 +38,12 @@ $(function() {
             "click #createbtn": "addRepository"
         },
         initialize: function(reposies) {
-            _.bindAll(this, 'addOne', 'addAll');
+            _.bindAll(this, 'addOne', 'addAll', 'updateStatus');
             this.input = this.$("#path");
             this.reposies = reposies;
             this.reposies.bind("add", this.addOne);
             this.reposies.bind("refresh", this.addAll);
+            this.reposies.bind("updateStatus", this.updateStatus);
         },
         addRepository: function() {
             reposies.url = "/repository/create";
@@ -44,6 +57,10 @@ $(function() {
         addAll: function() {
             reposies.each(this.addOne);
         },
+        updateStatus: function(repos) {
+            var statusview = new StatusView({model: repos});
+            $("#reposapp").append(statusview.render().el);
+        }
     });
 
     var LingitController = Backbone.Controller.extend({
@@ -53,19 +70,34 @@ $(function() {
             "status/:id"     : "status",
             "diff/:id/:file" : "diff"
         },
+        initialize: function() {
+            var reposies = new RepositoryList;
+            var lingitview = new LingitView(reposies);
+            this.lingitview = lingitview;
+        },
         list: function() {
+            var that = this;
             $.getJSON("/repository/list", function(data) {
                 if (data) {
                     $("#reposlist").empty();
-                    var reposies = new RepositoryList;
-                    var lingitview = new LingitView(reposies);
-                    lingitview.reposies.add(_(data).map(function(i) { return new Repository(i); }));
+                    that.lingitview.reposies.add(_(data).map(function(i) { return new Repository(i); }));
                 } else {
                     //Error
                 }
             });
         },
-        status: function() {
+        status: function(id) {
+            var that = this;
+            $.getJSON("/management/" + id, function(data) {
+                if (data) {
+                    $("#reposapp").empty();
+                    var repos = that.lingitview.reposies.get(id);
+                    repos.set({status: data.status});
+                    that.lingitview.reposies.trigger("updateStatus", repos);
+                } else {
+                    //Error
+                }
+            })
         }
     });
     new LingitController;
