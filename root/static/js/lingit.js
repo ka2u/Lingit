@@ -9,57 +9,48 @@ $(function() {
     });
 
     var ReposView = Backbone.View.extend({
-        initialize: function() {
-            _.bindAll(this, "render");
-            this.model.bind("change", this.render);
-            this.model.view = this;
-        },
-        render: function() {
-            this.el = ich.repos(this.model.toJSON());
-            return this;
-        }
-    });
-
-    var StatusView = Backbone.View.extend({
-        initialize: function() {
-            _.bindAll(this, "render");
-            this.model.bind("change",  this.render);
-            this.model.view = this;
-        },
-        render: function() {
-            this.el = ich.status(this.model.toJSON());
-            return this;
-        }
-    });
-
-    var LingitView = Backbone.View.extend({
         el: $("#reposapp"),
         events: {
             "click #createbtn": "addRepository"
         },
         initialize: function(reposies) {
-            _.bindAll(this, 'addOne', 'addAll', 'updateStatus');
-            this.input = this.$("#path");
+            _.bindAll(this, "addOne", "addAll", "render");
             this.reposies = reposies;
             this.reposies.bind("add", this.addOne);
             this.reposies.bind("refresh", this.addAll);
-            this.reposies.bind("updateStatus", this.updateStatus);
+            this.reposies.model.bind("change", this.render);
+            this.reposies.model.view = this;
+        },
+        render: function(repos) {
+            this.el = ich.repos(repos.toJSON());
+            return this;
         },
         addRepository: function() {
-            reposies.url = "/repository/create";
-            reposies.create({ path: this.input.val() });
-            this.input.val('');
+            this.reposies.url = "/repository/create";
+            this.reposies.create({ path: $("#path").val() });
+            $("#path").val('');
         },
         addOne: function(repos) {
-            var reposview = new ReposView({model: repos});
-            this.$("#reposlist").append(reposview.render().el);
+            $("#reposlist").append(this.render(repos).el);
         },
         addAll: function() {
-            reposies.each(this.addOne);
+            this.reposies.each(this.addOne);
         },
-        updateStatus: function(repos) {
-            var statusview = new StatusView({model: repos});
-            $("#reposapp").append(statusview.render().el);
+    });
+
+    var StatusView = Backbone.View.extend({
+        el: $("#reposapp"),
+        initialize: function(repos) {
+            _.bindAll(this, "render", "updateStatus");
+            this.repos = repos;
+            this.repos.bind("updateStatus", this.updateStatus);
+        },
+        render: function() {
+            this.el = ich.status(this.repos.toJSON());
+            return this;
+        },
+        updateStatus: function() {
+            $("#reposapp").append(this.render(this.repos).el);
         }
     });
 
@@ -72,15 +63,16 @@ $(function() {
         },
         initialize: function() {
             var reposies = new RepositoryList;
-            var lingitview = new LingitView(reposies);
-            this.lingitview = lingitview;
+            var reposview = new ReposView(reposies);
+            this.reposview = reposview;
+
         },
         list: function() {
             var that = this;
             $.getJSON("/repository/list", function(data) {
                 if (data) {
                     $("#reposlist").empty();
-                    that.lingitview.reposies.add(_(data).map(function(i) { return new Repository(i); }));
+                    that.reposview.reposies.add(_(data).map(function(i) { return new Repository(i); }));
                 } else {
                     //Error
                 }
@@ -91,9 +83,12 @@ $(function() {
             $.getJSON("/management/" + id, function(data) {
                 if (data) {
                     $("#reposapp").empty();
-                    var repos = that.lingitview.reposies.get(id);
+                    var repos = that.reposview.reposies.get(id);
                     repos.set({status: data.status});
-                    that.lingitview.reposies.trigger("updateStatus", repos);
+                    repos.set({untracks: data.untracks});
+                    var statusview = new StatusView(repos);
+                    that.statusview = statusview;
+                    that.statusview.repos.trigger("updateStatus", repos);
                 } else {
                     //Error
                 }

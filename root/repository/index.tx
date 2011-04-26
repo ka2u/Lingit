@@ -7,6 +7,7 @@
 <script id="status" type="text/html">
   Status
   <pre id="status">{{ status }}</pre>
+  {{#untracks}}<input type="checkbox"> {{.}}</input>{{/untracks}}
 </script>
 
 <div id="reposapp">

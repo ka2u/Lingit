@@ -28,7 +28,24 @@ sub index :Regex('^management/(\d+)') {
     my $id = $c->req->captures->[0];
     my $row = $c->model('Git')->get_manage_repos($id);
     my $status = $c->model('Git')->get_status($row->first->get_column('path'));
-    $c->stash(json_data => {id => $id, status => $status});
+    my $untrack_flag = 0;
+    my @untracked;
+    foreach my $line (split("\n", $status)) {
+        if ($line =~ /Untracked files:/) {
+            $untrack_flag = 1;
+            next;
+        }
+        if ($line =~ /nothing added to commit/) {
+            $untrack_flag = 0;
+            last;
+        }
+        next if $line =~ /^#\s\s\s\(use/;
+        next if $line =~/^#$/;
+        $line =~ /^#\s([\w\W\/]+)/;
+        my $file = $1;
+        push @untracked, $file if $untrack_flag;
+    }
+    $c->stash(json_data => {id => $id, status => $status, untracks => \@untracked});
     $c->forward("View::JSON");
 }
 
