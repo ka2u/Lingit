@@ -5,9 +5,20 @@
 </script>
 
 <script id="status" type="text/html">
-  Status
-  <pre id="status">{{ status }}</pre>
-  {{#untracks}}<input type="checkbox"> {{.}}</input>{{/untracks}}
+  <pre>{{ status }}</pre>
+  <h3>Tracked</h3>
+  <div id="tracked">
+    <input type="button" id="commitbtn" value="commit" />
+    <input type="button" id="untrackbtn" value="untrack" />
+  </div>
+  <h3>Untracked</h3>
+  <div id="untracked">
+    <input type="button" id="addbtn" value="add" />
+  </div>
+</script>
+
+<script id="status_tracks" type="text/html">
+    {{#tracks}}<div id="{{.}}"><input type="checkbox" value="{{.}}"> {{.}}</div>{{/tracks}}
 </script>
 
 <div id="reposapp">

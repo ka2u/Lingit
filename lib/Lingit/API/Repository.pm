@@ -78,7 +78,6 @@ sub add {
     my ($self, $path) = @_;
 
     $self->worktree->add($path);
-    $self->worktree->commit({message => "auto commit"});
 }
 
 __PACKAGE__->meta->make_immutable();

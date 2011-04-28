@@ -29,9 +29,12 @@ sub index :Regex('^management/(\d+)') {
     my $row = $c->model('Git')->get_manage_repos($id);
     my $status = $c->model('Git')->get_status($row->first->get_column('path'));
     my $untrack_flag = 0;
+    my $changes_flag = 0;
     my @untracked;
+    my @to_be_commit;
     foreach my $line (split("\n", $status)) {
         if ($line =~ /Untracked files:/) {
+            $changes_flag = 0;
             $untrack_flag = 1;
             next;
         }
@@ -39,13 +42,30 @@ sub index :Regex('^management/(\d+)') {
             $untrack_flag = 0;
             last;
         }
+        if ($line =~ /Changes to be committed:/) {
+            $untrack_flag = 0;
+            $changes_flag = 1;
+            next;
+        }
+        if ($line =~ /Changes not staged for commit:/) {
+            $untrack_flag = 0;
+            $changes_flag = 1;
+            next;
+        }
         next if $line =~ /^#\s\s\s\(use/;
         next if $line =~/^#$/;
         $line =~ /^#\s([\w\W\/]+)/;
         my $file = $1;
         push @untracked, $file if $untrack_flag;
+        push @to_be_commit, $file if $changes_flag;
     }
-    $c->stash(json_data => {id => $id, status => $status, untracks => \@untracked});
+    $c->stash(
+        json_data => {
+            id => $id, 
+            status => $status, 
+            untracks => \@untracked, 
+            to_be_commit => \@to_be_commit
+        });
     $c->forward("View::JSON");
 }
 
@@ -53,13 +73,16 @@ sub index :Regex('^management/(\d+)') {
 
 =cut
 
-sub add :Regex('^management/add/(\d+)') {
+sub untracked :Regex('^management/untracked/(\d+)') {
     my ( $self, $c ) = @_;
 
+    my $data = JSON->new->decode($c->request->params->{model});
+    $c->log->debug(Dumper $data);
     my $id = $c->req->captures->[0];
     my $row = $c->model('Git')->get_manage_repos($id);
-    $c->model('Git')->add($row->first->get_column('path'));
-    $c->res->redirect("/management/$id");
+    $c->model('Git')->add($row->first->get_column('path') . "/" . $data->{name});
+    $c->stash(json_data => $data);
+    $c->forward("View::JSON");
 }
 
 

@@ -7,6 +7,10 @@ $(function() {
     var RepositoryList = Backbone.Collection.extend({
         model: Repository
     });
+    var File = Backbone.Model.extend({});
+    var FileList = Backbone.Collection.extend({
+        model: File
+    });
 
     var ReposView = Backbone.View.extend({
         el: $("#reposapp"),
@@ -40,17 +44,44 @@ $(function() {
 
     var StatusView = Backbone.View.extend({
         el: $("#reposapp"),
+        events: {
+            "click #addbtn": "addUntracked"
+        },
         initialize: function(repos) {
-            _.bindAll(this, "render", "updateStatus");
+            _.bindAll(this, "render", "trackRender", "updateStatus", "trackOne");
             this.repos = repos;
             this.repos.bind("updateStatus", this.updateStatus);
+            var filelist = new FileList();
+            this.filelist = filelist;
+            this.filelist.bind("add", this.trackOne);
         },
-        render: function() {
-            this.el = ich.status(this.repos.toJSON());
+        render: function(status) {
+            this.el = ich.status(status);
+            return this;
+        },
+        trackRender: function(track) {
+            this.el = ich.status_tracks(track);
             return this;
         },
         updateStatus: function() {
-            $("#reposapp").append(this.render(this.repos).el);
+            $("#reposapp").append(this.render({status: this.repos.get("raw").status}).el);
+            $("#untracked").append(this.trackRender({tracks: this.repos.get("raw").untracks}).el);
+            $("#tracked").append(this.trackRender({tracks: this.repos.get("raw").to_be_commit}).el);
+        },
+        addUntracked: function() {
+            this.filelist.url = "/management/untracked/" + this.repos.id;
+            var elements = $("#untracked input:checked");
+            for(var i = 0; i < elements.length; i++) {
+                var id = $(elements[i]).val();
+                $("#" + id).remove();
+                this.filelist.create(
+                    {name: id},
+                    {success: function() { }});
+            }
+        },
+        trackOne: function(file) {
+            console.log(file.get("name"));
+            $("#tracked").append(this.trackRender({tracks: [file.get("name")]}).el);
         }
     });
 
@@ -84,8 +115,7 @@ $(function() {
                 if (data) {
                     $("#reposapp").empty();
                     var repos = that.reposview.reposies.get(id);
-                    repos.set({status: data.status});
-                    repos.set({untracks: data.untracks});
+                    repos.set({raw: data});
                     var statusview = new StatusView(repos);
                     that.statusview = statusview;
                     that.statusview.repos.trigger("updateStatus", repos);
