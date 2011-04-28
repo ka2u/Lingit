@@ -1,0 +1,39 @@
+
+html, body {height: 100%;}
+#wrap {min-height: 100%;}
+#content {overflow: auto; padding-bottom: 50px;}
+#footer {position: relative;
+         margin-top: -50px;
+         height: 50px;
+         clear: both;
+}
+body:before {
+    content: "";
+    height: 100%;
+    float: left;
+    width: 0;
+    margint-top: -32767px
+}
+
+div#header {
+  border-bottom: medium solid #000000;
+  padding: 10px;
+}
+
+div#footer {
+  border-top: medium solid #000000;
+  padding: 10px;
+  text-align: center;
+}
+
+div#content {
+  padding: 10px;
+  margin-bottom: 60px;
+}
+
+div#reposes {
+  margin: 30px;
+}
+
+
+
