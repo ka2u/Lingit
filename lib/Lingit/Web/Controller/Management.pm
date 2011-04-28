@@ -29,42 +29,51 @@ sub index :Regex('^management/(\d+)') {
     my $row = $c->model('Git')->get_manage_repos($id);
     my $status = $c->model('Git')->get_status($row->first->get_column('path'));
     my $untrack_flag = 0;
-    my $change_flag = 0;
+    my $new_flag = 0;
+    my $modified_flag = 0;
     my @untracked;
-    my @to_be_commit;
+    my @new;
+    my @modified;
     foreach my $line (split("\n", $status)) {
         if ($line =~ /Untracked files:/) {
-            $change_flag = 0;
             $untrack_flag = 1;
+            $new_flag = 0;
+            $modified_flag = 0;
             next;
         }
         if ($line =~ /nothing added to commit/) {
             $untrack_flag = 0;
+            $new_flag = 0;
+            $modified_flag = 0;
             last;
         }
         if ($line =~ /Changes to be committed:/) {
             $untrack_flag = 0;
-            $change_flag = 1;
+            $new_flag = 1;
+            $modified_flag = 0;
             next;
         }
         if ($line =~ /Changes not staged for commit:/) {
             $untrack_flag = 0;
-            $change_flag = 1;
+            $new_flag = 0;
+            $modified_flag = 1;
             next;
         }
         next if $line =~ /^#\s\s\s\(use/;
         next if $line =~/^#$/;
-        $line =~ /^#\s([\w\W\/]+)/;
-        my $file = $1;
+        $line =~ /^#\s(new\sfile:|modified:)([\w\W\/]+)/;
+        my $file = $2;
         push @untracked, $file if $untrack_flag;
-        push @to_be_commit, $file if $change_flag;
+        push @new, $file if $new_flag;
+        push @modified, $file if $modified_flag;
     }
     $c->stash(
         json_data => {
             id => $id, 
             status => $status, 
-            untracks => \@untracked, 
-            to_be_commit => \@to_be_commit
+            untracks => \@untracked,
+            newfile => \@new,
+            modified => \@modified,
         });
     $c->forward("View::JSON");
 }

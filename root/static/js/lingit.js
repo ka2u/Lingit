@@ -65,7 +65,8 @@ $(function() {
         updateStatus: function() {
             $("#reposapp").append(this.render({status: this.repos.get("raw").status}).el);
             $("#untracked").append(this.trackRender({tracks: this.repos.get("raw").untracks}).el);
-            $("#tracked").append(this.trackRender({tracks: this.repos.get("raw").to_be_commit}).el);
+            $("#tracked #new").append(this.trackRender({tracks: this.repos.get("raw").newfile}).el);
+            $("#tracked #modified").append(this.trackRender({tracks: this.repos.get("raw").modified}).el);
         },
         addUntracked: function() {
             this.untracked.url = "/management/untracked/" + this.repos.id;

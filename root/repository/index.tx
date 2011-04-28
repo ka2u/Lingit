@@ -10,6 +10,8 @@
   <div id="tracked">
     <input type="button" id="commitbtn" value="commit" />
     <input type="button" id="untrackbtn" value="untrack" />
+    <div id="new">newfile</div>
+    <div id="modified">modified</div>
   </div>
   <h3>Untracked</h3>
   <div id="untracked">
