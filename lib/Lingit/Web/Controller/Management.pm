@@ -29,12 +29,12 @@ sub index :Regex('^management/(\d+)') {
     my $row = $c->model('Git')->get_manage_repos($id);
     my $status = $c->model('Git')->get_status($row->first->get_column('path'));
     my $untrack_flag = 0;
-    my $changes_flag = 0;
+    my $change_flag = 0;
     my @untracked;
     my @to_be_commit;
     foreach my $line (split("\n", $status)) {
         if ($line =~ /Untracked files:/) {
-            $changes_flag = 0;
+            $change_flag = 0;
             $untrack_flag = 1;
             next;
         }
@@ -44,12 +44,12 @@ sub index :Regex('^management/(\d+)') {
         }
         if ($line =~ /Changes to be committed:/) {
             $untrack_flag = 0;
-            $changes_flag = 1;
+            $change_flag = 1;
             next;
         }
         if ($line =~ /Changes not staged for commit:/) {
             $untrack_flag = 0;
-            $changes_flag = 1;
+            $change_flag = 1;
             next;
         }
         next if $line =~ /^#\s\s\s\(use/;
@@ -57,7 +57,7 @@ sub index :Regex('^management/(\d+)') {
         $line =~ /^#\s([\w\W\/]+)/;
         my $file = $1;
         push @untracked, $file if $untrack_flag;
-        push @to_be_commit, $file if $changes_flag;
+        push @to_be_commit, $file if $change_flag;
     }
     $c->stash(
         json_data => {
