@@ -45,15 +45,14 @@ $(function() {
     var StatusView = Backbone.View.extend({
         el: $("#reposapp"),
         events: {
-            "click #addbtn": "addUntracked"
+            "click #addbtn": "addUntracked",
         },
         initialize: function(repos) {
             _.bindAll(this, "render", "trackRender", "updateStatus", "trackOne");
             this.repos = repos;
             this.repos.bind("updateStatus", this.updateStatus);
-            var filelist = new FileList();
-            this.filelist = filelist;
-            this.filelist.bind("add", this.trackOne);
+            this.untracked = new FileList();
+            this.untracked.bind("add", this.trackOne);
         },
         render: function(status) {
             this.el = ich.status(status);
@@ -69,12 +68,12 @@ $(function() {
             $("#tracked").append(this.trackRender({tracks: this.repos.get("raw").to_be_commit}).el);
         },
         addUntracked: function() {
-            this.filelist.url = "/management/untracked/" + this.repos.id;
+            this.untracked.url = "/management/untracked/" + this.repos.id;
             var elements = $("#untracked input:checked");
             for(var i = 0; i < elements.length; i++) {
                 var id = $(elements[i]).val();
                 $("#" + id).remove();
-                this.filelist.create(
+                this.untracked.create(
                     {name: id},
                     {success: function() { }});
             }
