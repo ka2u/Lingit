@@ -9,10 +9,10 @@ extends 'Catalyst::Model';
 has repos => (
     is => 'rw',
     isa => 'Lingit::API::Repository',
-    builder => 'build_repos_api',
+    builder => '_build_repos_api',
 );
 
-sub build_repos_api {
+sub _build_repos_api {
     my ($self, $c) = @_;
     my $api = Lingit::API::Repository->new;
     return $api;
@@ -49,6 +49,18 @@ sub add {
     my ($self, $path) = @_;
 
     $self->repos->add($path);
+}
+
+sub commit {
+    my ($self, $path) = @_;
+
+    $self->repos->commit($path);
+}
+
+sub diff {
+    my ($self, $path) = @_;
+
+    $self->repos->diff($path);
 }
 
 =head1 NAME

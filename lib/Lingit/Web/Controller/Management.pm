@@ -61,8 +61,12 @@ sub index :Regex('^management/(\d+)') {
         }
         next if $line =~ /^#\s\s\s\(use/;
         next if $line =~/^#$/;
-        $line =~ /^#\s(new\sfile:|modified:)([\w\W\/]+)/;
+        $line =~ /^#\s(new\sfile|modified):\s*([\w\W\/]+)/;
         my $file = $2;
+        if ($untrack_flag) {
+            $line =~ /^#\s([\w\W\/]+)/;
+            $file = $1;
+        }
         push @untracked, $file if $untrack_flag;
         push @new, $file if $new_flag;
         push @modified, $file if $modified_flag;
@@ -78,7 +82,7 @@ sub index :Regex('^management/(\d+)') {
     $c->forward("View::JSON");
 }
 
-=head2 add
+=head2 untracked
 
 =cut
 
@@ -94,6 +98,39 @@ sub untracked :Regex('^management/untracked/(\d+)') {
     $c->forward("View::JSON");
 }
 
+=head2 tracked
+
+=cut
+
+sub tracked :Regex('^management/tracked/(\d+)') {
+    my ( $self, $c ) = @_;
+
+    $c->log->debug("tracked");
+    my $data = JSON->new->decode($c->request->params->{model});
+    $c->log->debug(Dumper $data);
+    my $id = $c->req->captures->[0];
+    my $row = $c->model('Git')->get_manage_repos($id);
+    $c->model('Git')->commit($row->first->get_column('path') . "/" . $data->{name});
+    $c->stash(json_data => $data);
+    $c->forward("View::JSON");
+}
+
+=head2 diff
+
+=cut
+
+sub diff :Regex('^management/diff/(\d+)') {
+    my ($self, $c) = @_;
+
+    $c->log->debug("diff");
+    my $data = JSON->new->decode($c->request->params->{model});
+    $c->log->debug(Dumper $data);
+    my $id = $c->req->captures->[0];
+    my $row = $c->model('Git')->get_manage_repos($id);
+    my $diff = $c->model('Git')->diff($row->first->get_column('path') . "/" . $data->{name});
+    $c->stash(json_data => $diff);
+    $c->forward("View::JSON");
+}
 
 =head1 AUTHOR
 

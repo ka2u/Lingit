@@ -12,6 +12,8 @@ $(function() {
         model: File
     });
 
+    var Diff = Backbone.Model.extend({});
+
     var ReposView = Backbone.View.extend({
         el: $("#reposapp"),
         events: {
@@ -46,13 +48,17 @@ $(function() {
         el: $("#reposapp"),
         events: {
             "click #addbtn": "addUntracked",
+            "click #commitbtn": "commitTracked",
+            "click #diffbtn": "diffTracked"
         },
         initialize: function(repos) {
-            _.bindAll(this, "render", "trackRender", "updateStatus", "trackOne");
+            _.bindAll(this, "render", "trackRender", "updateStatus", "trackOne", "temporary");
             this.repos = repos;
             this.repos.bind("updateStatus", this.updateStatus);
             this.untracked = new FileList();
             this.untracked.bind("add", this.trackOne);
+            this.commits = new FileList();
+            this.commits.bind("add", this.temporary);
         },
         render: function(status) {
             this.el = ich.status(status);
@@ -62,16 +68,20 @@ $(function() {
             this.el = ich.status_tracks(track);
             return this;
         },
+        modRender: function(track) {
+            this.el = ich.modified_tracks(track);
+            return this;
+        },
         updateStatus: function() {
             $("#reposapp").append(this.render({status: this.repos.get("raw").status}).el);
             $("#untracked").append(this.trackRender({tracks: this.repos.get("raw").untracks}).el);
             $("#tracked #new").append(this.trackRender({tracks: this.repos.get("raw").newfile}).el);
-            $("#tracked #modified").append(this.trackRender({tracks: this.repos.get("raw").modified}).el);
+            $("#tracked #modified").append(this.modRender({tracks: this.repos.get("raw").modified}).el);
         },
         addUntracked: function() {
             this.untracked.url = "/management/untracked/" + this.repos.id;
             var elements = $("#untracked input:checked");
-            for(var i = 0; i < elements.length; i++) {
+            for (var i = 0; i < elements.length; i++) {
                 var id = $(elements[i]).val();
                 $("#" + id).remove();
                 this.untracked.create(
@@ -81,7 +91,28 @@ $(function() {
         },
         trackOne: function(file) {
             console.log(file.get("name"));
-            $("#tracked").append(this.trackRender({tracks: [file.get("name")]}).el);
+            $("#new").append(this.trackRender({tracks: [file.get("name")]}).el);
+        },
+        commitTracked: function() {
+            this.commits.url = "/management/tracked/" + this.repos.id;
+            console.log(this.commits.url);
+            var elements = $("#tracked input:checked");
+            for (var i = 0; i < elements.length; i++) {
+                var id = $(elements[i]).val();
+                console.log("id:" + id);
+                var res = this.commits.create({name: id}, 
+                                              { success: function() { $("#" + id).remove(); },
+                                                error: function(resp) { console.log(resp); } });
+            }
+        },
+        diffTracked: function(events) {
+            console.log("diffTracked");
+            console.log(events.target);
+            console.log($(event.target).attr('class'));
+            console.log(this.commits);
+        },
+        temporary: function() {
+            console.log("temporary");
         }
     });
 

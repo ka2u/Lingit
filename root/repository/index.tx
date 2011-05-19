@@ -20,7 +20,11 @@
 </script>
 
 <script id="status_tracks" type="text/html">
-    {{#tracks}}<div id="{{.}}"><input type="checkbox" value="{{.}}"> {{.}}</div>{{/tracks}}
+    {{#tracks}}<div id="{{.}}"><input type="checkbox" value="{{.}}"> {{.}} </div>{{/tracks}}
+</script>
+
+<script id="modified_tracks" type="text/html">
+    {{#tracks}}<div id="{{.}}"><input type="checkbox" value="{{.}}"> {{.}} <input id="diffbtn" class="{{.}}" type="button" value="diff"></div>{{/tracks}}
 </script>
 
 <div id="reposapp">
