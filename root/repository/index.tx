@@ -7,20 +7,20 @@
 <script id="status" type="text/html">
   <pre>{{ status }}</pre>
   <h3>Tracked</h3>
-  <div id="tracked">
+  <div id="files">
     <input type="button" id="commitbtn" value="commit" />
     <input type="button" id="untrackbtn" value="untrack" />
-    <div id="new">newfile</div>
+    <div id="tracked">tracked</div>
     <div id="modified">modified</div>
   </div>
-  <h3>Untracked</h3>
-  <div id="untracked">
+  <h3>Untracks</h3>
+  <div id="untracks">
     <input type="button" id="addbtn" value="add" />
   </div>
 </script>
 
 <script id="status_tracks" type="text/html">
-    {{#tracks}}<div id="{{.}}"><input type="checkbox" value="{{.}}"> {{.}} </div>{{/tracks}}
+    <div id="{{ cid }}"><input type="checkbox" value="{{ cid }}"> {{ name }} </div>
 </script>
 
 <script id="modified_tracks" type="text/html">
